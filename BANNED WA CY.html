@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>CYROOX BANNED V1.0</title>
+  <link rel="icon" href="https://aliceecdn.vercel.app/file/24739b77e8.jpeg" />
+
+  <!-- Manifest untuk Android WebAPK / Chrome -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#05060a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CYROOX BANNED V1.0">
+  <link rel="apple-touch-icon" href="https://aliceecdn.vercel.app/file/24739b77e8.jpeg">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --size: 300px; /* ukuran intro */
+      --duration: 5s;
+      --bg:#00060D;
+      --accent:#B7B2B0;
+      --accent2:#B6B2B0;
+      --muted:#EBE8EB;
+      --mono:'Share Tech Mono', monospace;
+      --ui: 'Inter', system-ui, sans-serif;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      color:#e6eef6;
+      font-family:var(--ui);
+      -webkit-font-smoothing:antialiased;
+    }
+    *{box-sizing:border-box}
+
+    /* =========================
+       INTRO (full-screen overlay)
+       ========================= */
+    #introOverlay{
+      position:fixed;
+      inset:0;
+      background:#000;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      transition: opacity .6s ease;
+      pointer-events: auto;
+    }
+
+    /* container from your exact intro */
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .video-wrap {
+      width: var(--size);
+      aspect-ratio: 1 / 1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 0 10px rgba(255,255,255,0.15);
+      position: relative;
+    }
+
+    video#player {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border: none;
+      outline: none;
+      pointer-events: none;
+    }
+
+    .loading-area {
+      width: var(--size);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .loading-text { font-weight:600; letter-spacing:0.05em; font-size:0.9rem; color:#fff; font-family:var(--ui); }
+    .loading-bar { width:100%; height:8px; background: rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    .loading-bar i { display:block; height:100%; width:0%; background: linear-gradient(90deg,#fff,rgba(255,255,255,0.5)); border-radius:999px; animation: fillBar var(--duration) linear forwards; }
+    @keyframes fillBar { from{width:0%} to{width:100%} }
+
+    .dots { display:flex; gap:6px; margin-top:6px; }
+    .dot { width:6px; height:6px; border-radius:50%; background:white; opacity:0.2; animation: blink 1s infinite; }
+    .dot:nth-child(2){ animation-delay:.2s } .dot:nth-child(3){ animation-delay:.4s }
+    @keyframes blink { 0%,80%,100%{opacity:.2; transform:translateY(0)} 40%{opacity:1; transform:translateY(-4px)} }
+
+    .brand-text { margin-top:12px; font-family: "Orbitron", sans-serif; font-weight:900; font-size:1.1rem; letter-spacing:2px; color:#fff; text-shadow:0 0 10px rgb(120,120,120); user-select:none; }
+
+    /* hide intro overlay when finished */
+    #introOverlay.hidden { opacity: 0; pointer-events: none; }
+
+    @media (max-width:400px){ :root{ --size:250px } .brand-text{ font-size:1rem } }
+
+    /* =========================
+       MAIN APP LAYOUT (CYROOX UNBANNED)
+       ========================= */
+    #app {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .45s ease .1s, visibility .45s ease .1s;
+      padding: 18px;
+      min-height: 100vh;
+    }
+    #app.visible { opacity: 1; visibility: visible; }
+
+    .topbar { display:flex; align-items:center; background:transparent; padding:8px 12px; }
+    .title-top { font-family: var(--mono); font-size:18px; font-weight:600; color:var(--accent); }
+    .robot-box{ background:radial-gradient(circle at 30% 20%, rgba(124,92,255,0.06), transparent 20%), linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border-radius:10px; padding:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.02); width:280px; margin-left:auto; margin-right:auto; margin-top:40px; }
+    .robot-face { width:120px; height:120px; border-radius:50%; background:#000; display:flex; align-items:center; justify-content:center; font-size:56px; margin:0 auto; box-shadow:0 0 15px rgba(0,0,0,0.6); }
+    .robot-title-normal { font-size:18px; text-align:center; margin-top:8px; color:#e6eef6; font-weight:600; }
+
+    .form-label{ font-size:12px; font-weight:500; margin:12px 0 6px; display:block; text-align:left; width:280px; margin-left:auto; margin-right:auto; }
+    .input, select, .btn { width:280px; margin:0 auto; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#071018; color:#7b8a97; font-size:14px; outline:none; display:block; }
+    .btn{ margin-top:18px; padding:12px 14px; background:linear-gradient(90deg,var(--accent),var(--accent2)); border:0; border-radius:10px; color:#000; font-weight:800; cursor:pointer; font-size:15px }
+    .status{ margin-top:12px; font-size:13px; color:var(--muted); min-height:20px; width:280px; margin-left:auto; margin-right:auto; }
+    .small{ font-size:12px; color:var(--muted); margin-top:6px; width:280px; margin-left:auto; margin-right:auto; text-align:center; }
+    .overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); display:none; z-index:998; }
+    .overlay.active { display:block; }
+
+    /* custom select look */
+    select.input { -webkit-appearance:none; -moz-appearance:none; appearance:none; background: linear-gradient(145deg, #0b1116, #071018); padding-right:36px; }
+    .select-wrapper { position: relative; width:280px; margin:0 auto; }
+    .select-wrapper::after { content: "\25BC"; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#7b8a97; }
+
+    /* welcome popup - center */
+    #welcomeBox {
+      position: fixed;
+      inset: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      backdrop-filter: blur(6px);
+      background: rgba(0,0,0,0.25);
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    #welcomeBox.active { opacity:1; pointer-events:auto; }
+    #welcomeContent {
+      background: rgba(0,0,0,0.6);
+      padding:20px 26px;
+      border-radius:10px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      text-align:center;
+    }
+    .gradientText{
+      font-family: 'Orbitron', sans-serif;
+      font-weight:900;
+      font-size:22px;
+      background: linear-gradient(90deg,#B6B2B0,#B7B2B0);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      letter-spacing:1px;
+    }
+
+    @media (max-width:420px){
+      .input, select, .btn, .form-label { width:220px; margin-left:auto; margin-right:auto; }
+      .robot-box{ width:220px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= INTRO OVERLAY (EXACT INTRO YOU PROVIDED) ================= -->
+  <div id="introOverlay" aria-hidden="false">
+    <div class="video-container">
+      <div class="video-wrap">
+        <video id="player" playsinline preload="metadata">
+          <source src="https://files.catbox.moe/ttwhiq.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="loading-area" id="loading">
+        <div class="loading-text">Loading</div>
+        <div class="loading-bar"><i id="bar"></i></div>
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+
+      <div class="brand-text">CYROOX BANNED WEB</div>
+    </div>
+  </div>
+
+  <!-- ================= WELCOME POPUP (show once) ================= -->
+  <div id="welcomeBox" aria-hidden="true">
+    <div id="welcomeContent">
+      <div class="gradientText">WELLCOME</div>
+    </div>
+  </div>
+
+  <!-- ================= APP (main CYROOX UNBANNED) ================= -->
+  <div id="app" role="main" aria-hidden="true">
+    <header class="topbar">
+      <div class="title-top">CYROOX BANNED</div>
+    </header>
+
+    <div class="overlay" id="overlay" aria-hidden="true"></div>
+
+    <div class="robot-box" aria-hidden="false">
+      <div class="robot-face">
+        <img src="https://aliceecdn.vercel.app/file/24739b77e8.jpeg" alt="Logo Robot" style="max-height:100%; max-width:100%; border-radius:50%;">
+      </div>
+      <div class="robot-title-normal">CYROOX BANNED WhatsApp</div>
+    </div>
+
+    <label class="form-label" for="nomor">Nomor :</label>
+    <input type="tel" id="nomor" class="input" placeholder="+628×××" inputmode="tel" aria-required="true" />
+
+    <label class="form-label" for="alasan">Pilih Opsi Banned</label>
+    <div class="select-wrapper">
+      <select id="alasan" class="input" aria-required="true">
+        <option value="">BANNED OPTION</option>
+        <option value="opsi1">BANNED 1</option>
+        <option value="opsi2">BANNED 2</option>
+        <option value="opsi3">BANNED 3</option>
+        <option value="opsi4">BANNED 4</option>
+        <option value="opsi5">BANNED 5</option>
+        <option value="opsi6">BANNED 6</option>
+        <option value="opsi7">BANNED 7</option>
+        <option value="opsi8">BANNED 8</option>
+        <option value="opsi9">BANNED 9</option>
+      </select>
+    </div>
+
+    <button class="btn" id="sendBtn" aria-label="Kirim Banding">BANNED</button>
+    <div class="status" id="statusArea" aria-live="polite"></div>
+    <div class="small">VIP METODE BANNED WEB</div>
+    <main class="empty" aria-hidden="true"></main>
+  </div>
+
+<script>
+  /* ------------------ Intro controls ------------------ */
+  const video = document.getElementById("player");
+  const bar = document.getElementById("bar");
+  const loading = document.getElementById("loading");
+  const introOverlay = document.getElementById("introOverlay");
+  const app = document.getElementById("app");
+  const welcomeBox = document.getElementById("welcomeBox");
+
+  video.addEventListener("loadedmetadata", () => {
+    const dur = video.duration || 5;
+    document.documentElement.style.setProperty("--duration", dur + "s");
+    if (bar) bar.style.animationDuration = dur + "s";
+  });
+
+  function tryPlay() {
+    video.muted = false;
+    video.volume = 1.0;
+    video.play().catch(() => {
+      video.muted = true;
+      video.play().catch(()=>{/* ignore */});
+    });
+  }
+
+  window.addEventListener("load", tryPlay);
+
+  function showAppAfterIntro() {
+    // fade-out intro overlay
+    introOverlay.classList.add("hidden");
+    // reveal app after fade
+    setTimeout(() => {
+      introOverlay.style.display = "none";
+      app.classList.add("visible");
+      app.setAttribute("aria-hidden","false");
+      // show welcome popup once (if not shown before)
+      if (!localStorage.getItem("welcomeShown")) {
+        setTimeout(()=> {
+          welcomeBox.classList.add("active");
+          welcomeBox.setAttribute("aria-hidden","false");
+          localStorage.setItem("welcomeShown","yes");
+          setTimeout(()=> {
+            welcomeBox.classList.remove("active");
+            welcomeBox.setAttribute("aria-hidden","true");
+          }, 3000);
+        }, 200); // small delay so app visible first
+      }
+    }, 620); // match CSS fade timing
+  }
+
+  video.addEventListener("ended", () => {
+    if (loading) loading.classList.add("hidden");
+    // small delay so loading hides nicely then transition
+    setTimeout(showAppAfterIntro, 300);
+  });
+
+  // safety fallback if video can't play/ended event missed
+  setTimeout(()=> {
+    if (!video.ended && introOverlay && introOverlay.style.display !== "none") {
+      try { showAppAfterIntro(); } catch(e){}
+    }
+  }, 9000);
+
+  /* ------------------ App / Mail logic (original, preserved + fixed) ------------------ */
+  const sendBtn = document.getElementById('sendBtn');
+  const statusEl = document.getElementById('statusArea');
+  const nomorInput = document.getElementById('nomor');
+  const alasanSelect = document.getElementById('alasan');
+
+  function enc(v){ return encodeURIComponent(v || ''); }
+  function isAndroid(){ return /Android/i.test(navigator.userAgent); }
+  function setStatus(t){ statusEl.textContent = t; }
+  function normalizeNumber(n){
+    if(!n) return n;
+    const s=n.trim().replace(/\s+/g,'');
+    if(/^[0][0-9]+$/.test(s)) return '62'+s.slice(1);
+    if(/^\+/.test(s)) return s;
+    return s;
+  }
+
+  /* buildTemplate: placeholders for 5 opsi (edit text later) */
+  function buildTemplate(nomor, alasan){
+    const tampilNomor = (nomor.startsWith('+') || nomor.startsWith('62')) ? nomor : ('+'+nomor);
+
+    switch(alasan){
+      case "opsi1":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: 'Kepada tim bantuan whatsapp saya menerima pesan ini dari orang yang tidak di kenal',
+          body: `Halo😁, apakah Anda perlu memperkosa wanita? Ada banyak wanita dengan harga sangat murah yang dijamin akan memuaskan hasrat seksual Anda😋. Ini adalah wanita yang saya jual 👇
+✅ Wanita dengan vagina besar: $20
+✅ Wanita cantik: $150
+✅ Wanita cantik dengan pantat besar: $250
+✅ Wanita dengan pantat besar: $100
+✅ Remaja: $80
+Wanita yang saya jual pasti akan memuaskan keinginan Anda dan tidak akan berpakaian di depan Anda saat Anda membeli pakaian. Para wanita sudah siap untuk diperkosa. Puaskan hasrat seksual Anda dengan memasukkan alat kelamin Anda ke pantat wanita pilihan Anda 😋. Anda dapat membeli dari 👇
+https://api.whatsapp.com/send?phone=${tampilNomor}`
+        };
+      case "opsi2":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: 'Kepada tim bantuan whatsapp saya menerima pesan ini dari orang yang tidak di kenal',
+          body: `📢 Toko Porno
+Hallo, saya dari tim pornografi. Saya menjual banyak video porno dengan harga murah. Berikut daftar video porno 👇
+
+✅ Pornografi anak: 100 $
+✅ Pornografi dewasa: 210 $
+
+Puas kan nafsu Anda dengan membeli video porno, dan Anda akan mendapatkan diskon jika Anda telah membeli video porno sebanyak tiga kali 😍. Beli video porno sebanyak mungkin sekarang juga dan dapatkan diskon untuk pembelian dengan harga yang lebih murah 🥳. Hubungi melalui WhatsApp 👇
+https://api.whatsapp.com/send?phone=${tampilNomor}`
+        };
+        case "opsi3":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: 'Kepada tim bantuan whatsapp saya menerima pesan ini dari orang yang tidak di kenal',
+          body: `Dan orang tua
+Ini :
+1. Bir ️🍺
+2. Vodka ️🍺
+3. Tequila ️🍺
+4. Rum ️🍺
+5. Wiski ️🍺
+6. Gin ️🍺
+7. Cognac ️🍺
+8. Wiski ️🍺
+9. Anggur ️🍺
+10. Sake ️🍺
+11. Soju ️🍺
+12. Tuak ️🍺
+13. Ciuman ️🍺
+14. Kokain ️🍚
+15. Ganja 🌿☘️🌱
+16. Ekstasi 💊
+17. Heroin 🍚
+18. Metamfetamin
+19. Lexotan 🍚
+20. Pil Koplo 💊
+21. Obat penenang 💊
+22. Obat penenang 💊
+23. Hipnotik 💊
+24. Obat tidur 💊
+25. Diazepam 💊
+26. Nitrazepam 💊
+27. Suntikan gila 💉
+28. Suntikan penenang 💉
+29. Suntikan mematikan 💉
+30. Kondom 💦
+31. Pisau tajam untuk pembunuh 🔪
+32. Gantung diri
+33. Alat hipnosis
+34. Narkoba 🍚💉
+35. Narkoba 🍚💉
+36. Racun 🍚💉💊
+37. Alat sihir hitam
+38. Film porno 🎥
+🎬https://api.whatsapp.com/send?phone=${tampilNomor}`
+        };
+      case "opsi4":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: `Kepada tim bantuan whatsapp saya menerima pesan ini dari orang yang tidak di kenal`,
+          body: `Selamat pagi, saya menerima dokumen 2GB di aplikasi WhatsApp Anda dan itu membuat WhatsApp saya macet dan saya tidak bisa lagi bekerja menggunakan aplikasi Anda yang bernama WhatsApp. Mohon blokir nomor ini saja: ${tampilNomor}`
+        };
+      case "opsi5":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: 'Kepada tim bantuan whatsapp saya menerima pesan ini dari orang yang tidak di kenal',
+          body: `Tolong, ketika pengguna Whatsapp ${tampilNomor} mengirim video dan foto yang tidak pantas untuk dilihat karena mengandung unsur negatif/pornografi, blokir nomor tersebut. ${tampilNomor}`
+        };
+      case "opsi6":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: 'Halo tim bantuan whatsapp ',
+          body: `Halo, sebagai pengguna WhatsApp, saya ingin melaporkan nomor: ${tampilNomor} Akun yang mengirim pesan dengan dokumen 2 GB setelah mengunduhnya lag di WhatsApp, keluar dari WhatsApp, membuat ponsel lambat dan sering crash, harap blokir akun agar tidak terlalu banyak korban dan agar hal ini tidak terjadi Berbahaya bagi pengguna WhatsApp lainnya. Terima kasih
+`
+        };
+      default:
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: `Kepada tim bantuan whatsapp saya meminta bantuan`,
+          body: `Selamat pagi, saya menerima dokumen 2GB di aplikasi WhatsApp Anda dan itu membuat WhatsApp saya macet dan saya tidak bisa lagi bekerja menggunakan aplikasi Anda yang bernama WhatsApp. Mohon blokir nomor ini saja: ${tampilNomor}`
+        };
+        case "opsi7":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: `halo tim bantuan whatsapp`,
+          body: `Halo Saya kehilangan perangkat saya baru-baru ini dan saya perlu akun whatsapp saya dinonaktifkan sampai saya membeli Sim Baru! nomor saya adalah ${tampilNomor}`
+        };
+        case "opsi8":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: `halo tim bantuan whatsapp`,
+          body: `Ponsel milik saya dicuri bersama dengan informasi saya dan saya perlu nomor whatsapp saya untuk dinonaktifkan! nomor saya adalah ${tampilNomor}`
+        };
+        case "opsi9":
+        return {
+          to: 'support@support.whatsapp.com',
+          subject: `halo tim bantuan whatsapp`,
+          body: `Halo, saya kehilangan dokumen saya bersama dengan ponsel dan kartu SIM saya. jadi saya ingin Anda segera menonaktifkan nomor saya, saya takut seseorang dapat masuk ke akun whatsapp saya karena memiliki informasi penting tentang saya, nomornya adalah: ${tampilNomor}`
+        };
+    }
+  }
+
+  function buildIntentUrl(t){return `intent://compose?to=${enc(t.to)}&subject=${enc(t.subject)}&body=${enc(t.body)}#Intent;scheme=mailto;package=com.google.android.gm;end`;}
+  function buildMailtoUrl(t){return `mailto:${enc(t.to)}?subject=${enc(t.subject)}&body=${enc(t.body)}`;}
+  function buildGmailWebUrl(t){return `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(t.to)}&su=${enc(t.subject)}&body=${enc(t.body)}`;}
+
+  sendBtn.addEventListener('click',()=>{
+    let nomor=(nomorInput.value||'').trim();
+    let alasan=(alasanSelect.value||'');
+
+    if(!nomor || !alasan){ setStatus("Mohon isi nomor & pilih alasan."); return; }
+
+    nomor = normalizeNumber(nomor);
+    const tpl = buildTemplate(nomor, alasan);
+
+    const intentUrl = buildIntentUrl(tpl);
+    const mailtoUrl = buildMailtoUrl(tpl);
+    const gmailWebUrl = buildGmailWebUrl(tpl);
+
+    sendBtn.disabled = true;
+    sendBtn.setAttribute('aria-busy','true');
+
+    if(isAndroid()){
+      setStatus("Mencoba membuka Gmail app...");
+      try{ window.location.href = intentUrl; } catch(e){}
+
+      let handled=false;
+      const fallback = ()=>{
+        if(handled) return;
+        handled=true;
+        setStatus("GAGAL...");
+        try{ window.location.href = mailtoUrl; } catch(e){
+          try{ window.open(gmailWebUrl,'_blank'); } catch(err){ setStatus("Gagal membuka email."); }
+        }
+        sendBtn.disabled=false;
+        sendBtn.removeAttribute('aria-busy');
+      };
+
+      const onVisChange = ()=>{
+        if(document.hidden){
+          handled=true;
+          setStatus("Compose terbuka.");
+          sendBtn.disabled=false;
+          sendBtn.removeAttribute('aria-busy');
+        }
+      };
+      document.addEventListener('visibilitychange', onVisChange, {once:true});
+      setTimeout(()=>{ if(!handled) fallback(); }, 1200);
+
+    } else {
+      setStatus("Membuka aplikasi email...");
+      try{
+        window.location.href = mailtoUrl;
+        setTimeout(()=>{
+          if(!document.hidden){
+            try{ window.open(gmailWebUrl,"_blank"); } catch(e){}
+          }
+          sendBtn.disabled=false;
+          sendBtn.removeAttribute('aria-busy');
+        },900);
+      }catch(err){
+        try{ window.open(gmailWebUrl,"_blank"); } catch(e){}
+        sendBtn.disabled=false;
+        sendBtn.removeAttribute('aria-busy');
+      }
+    }
+  });
+
+</script>
+</body>
+</html>
